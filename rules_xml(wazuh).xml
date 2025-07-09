@@ -1,0 +1,59 @@
+<group name="evilginx_red_team,">
+  <!-- Detect Evilginx Process Execution -->
+  <rule id="100100" level="10">
+    <if_sid>1110</if_sid>
+    <match>evilginx</match>
+    <description>ALERT: Evilginx process execution detected.</description>
+    <group>phishing,process,evilginx</group>
+  </rule>
+  <!-- Triggers whenever evilginx binary starts -->
+
+  <!-- Detect Phishlet Configuration File Modification -->
+  <rule id="100101" level="10">
+    <if_sid>550</if_sid>
+    <match>.*phishlets.*\.yaml</match>
+    <description>ALERT: Evilginx phishlet file modified or added.</description>
+    <group>phishing,fim,evilginx</group>
+  </rule>
+  <!-- Fires when new phishlets are added or modified -->
+ 
+
+  <!-- Detect Dante SOCKS5 Proxy Process -->
+  <rule id="100102" level="9">
+    <if_sid>1110</if_sid>
+    <match>danted|dante-server</match>
+    <description>ALERT: Dante SOCKS5 proxy started on phishing server.</description>
+    <group>proxy,process,socks5,dante</group>
+  </rule>
+
+  <!-- Detect Listening Port 1080 for Dante -->
+  <rule id="100103" level="8">
+    <if_sid>530</if_sid>
+    <match>1080</match>
+    <description>ALERT: Dante SOCKS5 port (1080) is open.</description>
+    <group>network,socks5,dante</group>
+  </rule>
+
+  <!-- Detect Evilginx HTTP/HTTPS Listener -->
+  <rule id="100104" level="8">
+    <if_sid>530</if_sid>
+    <match>80|443</match>
+    <description>ALERT: Web server (possibly Evilginx) listening on ports 80/443.</description>
+    <group>network,evilginx,web</group>
+  </rule>
+
+  <!-- SSH Operator Access Alerts -->
+  <rule id="100105" level="7">
+    <if_sid>5710</if_sid>
+    <description>ALERT: SSH Login to Evilginx server detected.</description>
+    <group>ssh,operator,login</group>
+  </rule>
+
+  <!-- Detect Outbound Phishing Target Connections -->
+  <rule id="100106" level="10">
+    <if_sid>4001</if_sid>
+    <match>google\.com|microsoft\.com|login\.live\.com</match>
+    <description>ALERT: Evilginx target connections observed.</description>
+    <group>network,evilginx,target</group>
+  </rule>
+</group>

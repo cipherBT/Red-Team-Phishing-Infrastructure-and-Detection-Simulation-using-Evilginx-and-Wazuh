@@ -1,0 +1,10 @@
+-D
+-b 8192
+-f 1
+--backlog_wait_time 60000
+
+# Monitor every command executed by root
+-a exit,always -F auid-0 -F arch=b64 -S execve -k audit-wazuh-c
+-a exit,always -F auid-0 -F arch=b32 -S execve -k audit-wazuh-c
+
+-a always,exit -F arch=b64 -F path=/home/ubuntu/evilginx2 -F perm=x -k evilginx_exec
