@@ -315,7 +315,7 @@ sessions <id>
 -  Audit.rules for AuditD
 -  Dante SOCKS5 proxy config (`danted.conf`)
 -  `ossec.conf` templates for Wazuh Manager & Agent
--  Project/execution emages in assets folder
+-  Project/execution images in assets folder
 -  Full setup + attack simulation guide (this file)
 
 ---
